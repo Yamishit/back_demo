@@ -5,6 +5,14 @@
 
 <struts>
 
-	
+	<!-- action交给struts2本身自己去创建 -->
+	<!-- <package name="ssh" extends="struts-default" namespace="/">
+		<action name="product_*" class="com.clannad.action.ProductAction"
+			method="{1}"></action>
+	</package> -->
+	<!-- action交给spring去创建 class配置spring配置文件中的action的id即可 -->
+	<package name="ssh" extends="struts-default" namespace="/">
+		<action name="product_*" class="productAction" method="{1}"></action>
+	</package>
 
 </struts>

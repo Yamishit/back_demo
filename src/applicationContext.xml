@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx" 
-	xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:util="http://www.springframework.org/schema/util" 
-	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xmlns:cache="http://www.springframework.org/schema/cache"
 	xsi:schemaLocation="  
     http://www.springframework.org/schema/context  
@@ -23,6 +20,60 @@
     http://www.springframework.org/schema/aop/spring-aop.xsd  
     http://www.springframework.org/schema/util  
     http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<!-- 配置Hibernate的相关属性 -->
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<!-- 注入连接池 -->
+		<property name="dataSource" ref="dataSource" />
+		<!-- 配置Hibernate的属性 -->
+		<property name="hibernateProperties">
+			<props>
+				<!-- 方言 -->
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<!-- 千万别写成hibernate.hbm2dll.auto -->
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+		<!-- 加载Hibernate中的映射文件 mappingResources是一个数组 -->
+		<property name="mappingResources">
+			<list>
+				<value>com/clannad/domain/Product.hbm.xml</value>
+			</list>
+		</property>
+
+	</bean>
+
+
+	<!-- 引入外部的属性文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
+	<!-- 配置C3P0连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driverClass}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- 配置aciton的类 -->
+	<!-- 不添加scope="prototype"为单例,添加即为多例 -->
+	<bean id="productAction" class="com.clannad.action.ProductAction"
+		scope="prototype">
+		<!-- 手动注入service -->
+		<property name="productService" ref="productService"></property>
+	</bean>
+
+
+	<!-- 配置业务层的类 业务层需要注入dao -->
+	<bean id="productService" class="com.clannad.service.ProductService">
+		<property name="productDao" ref="productDao" />
+	</bean>
+	<!-- 配置DAO的类 -->
+	<bean id="productDao" class="com.clannad.dao.ProductDao"></bean>
 
 
 </beans> 
